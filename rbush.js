@@ -251,8 +251,7 @@ rbush.prototype = {
 
             minArea = minEnlargement = Infinity;
 
-            for (i = 0, len = node.children.length; i < len; i++) {
-                child = node.children[i];
+            node.children.forEach(function(child,i){
                 area = this._area(child.bbox);
                 enlargement = this._enlargedArea(bbox, child.bbox) - area;
 
@@ -269,7 +268,7 @@ rbush.prototype = {
                         targetNode = child;
                     }
                 }
-            }
+            });
 
             node = targetNode;
         }

@@ -26,22 +26,24 @@ function Tree(name, options){
   var self = this;
   this._maxEntries = Math.max(4, options.maxEntries || 9);
   this._minEntries = Math.max(2, Math.ceil(this._maxEntries * 0.4));
-  this.clear();
   self.fullname = '__tree__'+name;
-  self.then = new Promise(function(yes){
-    self.db = level(self.fullname, {valueEncoding:'json', createIfMissing:false},function(err){
-      if(err){
-        self.db = level(self.fullname, {valueEncoding:'json'},function(err){
-          yes(self.db);
-        });
-      }else{
-        self.get('tree').then(function(tree){
-          self.fromJSON(tree);
-          yes(self.db);
-        },function(err){
-          yes(self.db);
-        });
+  self.then = new Promise(function(yes,no){
+    self.db = level(self.fullname, {valueEncoding:'json'},function(){
+      self.has('tree').then(function(answer){
+        if(answer){
+          return self.get('tree').then(function(tree){
+            self.fromJSON(tree);
+            return true;
+          });
+        } else {
+          self.data = {
+            children: [],
+            leaf: true,
+            bbox: self._empty(),
+            height: 1
+        }
       }
+      }).then(yes,no);
     });
   }).then;
 }
@@ -149,6 +151,18 @@ Tree.prototype.get = function(id){
     })
   });
 };
+Tree.prototype.has = function(id){
+  return this.get(id).then(function(){return true;},function(err){
+    if(err.notFound){
+      return false;
+    }else{
+      throw err;
+    }
+  })
+}
+Tree.prototype.hasItem = function(id){
+  return this.has('z-'+id);
+}
 Tree.prototype.delItem = function(key){
   return this.del('z-'+key);
 };
