@@ -62,7 +62,7 @@ rbush.prototype = {
 
         if (data.length < this._minEntries) {
             for (var i = 0, len = data.length; i < len; i++) {
-                this.insert(data[i]);
+                this._insert(data[i],this.data.height - 1);
             }
             return this;
         }
@@ -90,13 +90,6 @@ rbush.prototype = {
             this._insert(node, this.data.height - node.height - 1, true);
         }
 
-        return this;
-    },
-
-    insert: function (item) {
-        if (item) {
-            this._insert(item, this.data.height - 1);
-        }
         return this;
     },
 

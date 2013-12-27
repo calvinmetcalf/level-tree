@@ -24,7 +24,9 @@ function makeBbox(thing){
 function Tree(name, options){
   options = options || {};
   var self = this;
-  self.tree = new Rbush(options.maxEntries);
+  this._maxEntries = Math.max(4, options.maxEntries || 9);
+  this._minEntries = Math.max(2, Math.ceil(this._maxEntries * 0.4));
+  this.clear();
   self.fullname = '__tree__'+name;
   self.then = new Promise(function(yes){
     self.db = level(self.fullname, {valueEncoding:'json', createIfMissing:false},function(err){
@@ -34,7 +36,7 @@ function Tree(name, options){
         });
       }else{
         self.get('tree').then(function(tree){
-          self.tree = self.tree.fromJSON(tree);
+          self.fromJSON(tree);
           yes(self.db);
         },function(err){
           yes(self.db);
@@ -43,8 +45,9 @@ function Tree(name, options){
     });
   }).then;
 }
+Tree.prototype = new Rbush();
 Tree.prototype.sync = function(){
-  return this.put('tree',this.tree.toJSON());
+  return this.put('tree',this.data);
 }
 Tree.prototype.insert = function(item){
   var self = this;
@@ -57,7 +60,7 @@ Tree.prototype.insert = function(item){
   var bbox = item.bbox.slice();
   var id = item.id;
   bbox.id = id;
-  this.tree.insert(bbox);
+  this._insert(bbox, this.data.height - 1);
   return this.put(id,item).then(function(resp){
     self.sync();
     return id;
@@ -83,8 +86,8 @@ Tree.prototype.load = function(array){
     batch[i] = {key:array[i].id,value:array[i],type:'put'};
     bboxen[i] = array[i].bbox;
   };
-  this.tree.load(bboxen);
-  batch.push({type:'put',key:'tree',value:this.tree.toJSON()});
+  Rbush.prototype.load.call(this,bboxen);
+  batch.push({type:'put',key:'tree',value:this.data});
   return new Promise(function(yes){
     self.db.batch(batch,function(err){
       if(err){
@@ -96,7 +99,7 @@ Tree.prototype.load = function(array){
   });
 }
 Tree.prototype.search = function(bbox){
-  var results = this.tree.search(bbox);
+  var results = Rbush.prototype.search.call(this,bbox);
   return all(results.map(function(item){
     return this.get(item.id);
   },this));
@@ -112,7 +115,7 @@ Tree.prototype.remove = function(id){
       return bbox
     });
   }).then(function(item){
-    var resp =  self.tree.remove(item);
+    var resp =  Rbush.prototype.remove.call(self,item);
     self.sync();
     return resp;
   });
