@@ -77,13 +77,13 @@ db.destroy().then(function(){
 });
 ```
 
-get
+fetch
 ---
 
 get a feature by id
 
 ```javascript
-db.get(id).then(function(feature){
+db.fetch(id).then(function(feature){
   //dance
 });
 ```

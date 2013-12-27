@@ -43,7 +43,7 @@ describe('tree',function(){
     });
     it('should be able to add stuff and then get it',function(){
       return tree.insert(schools.features[0]).then(function(id){
-        return tree.get(id);
+        return tree.fetch(id);
       }).then(function(item){
         return item.geometry;
       }).should.become(schools.features[0].geometry);
@@ -53,7 +53,7 @@ describe('tree',function(){
         return tree.close().then(function(){
           tree = new Tree('test');
         }).then(function(){
-          return tree.get(id);
+          return tree.fetch(id);
         });
       }).then(function(item){
         return item.geometry;

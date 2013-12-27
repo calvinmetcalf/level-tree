@@ -61,7 +61,7 @@ Tree.prototype.insert = function(item){
   var id = item.id;
   bbox.id = id;
   this._insert(bbox, this.data.height - 1);
-  return this.put(id,item).then(function(resp){
+  return this.putItem(id,item).then(function(resp){
     self.sync();
     return id;
   });
@@ -83,7 +83,7 @@ Tree.prototype.load = function(array){
       array[i].id = makeID(array[i]);
     }
     array[i].bbox.id = array[i].id;
-    batch[i] = {key:array[i].id,value:array[i],type:'put'};
+    batch[i] = {key:'z-'+array[i].id,value:array[i],type:'put'};
     bboxen[i] = array[i].bbox;
   };
   Rbush.prototype.load.call(this,bboxen);
@@ -101,17 +101,17 @@ Tree.prototype.load = function(array){
 Tree.prototype.search = function(bbox){
   var results = Rbush.prototype.search.call(this,bbox);
   return all(results.map(function(item){
-    return this.get(item.id);
+    return this.fetch(item.id);
   },this));
 }
 Tree.prototype.remove = function(id){
   var self = this;
-  return self.get(id).then(function(resp){
+  return self.fetch(id).then(function(resp){
     var bbox = resp.bbox;
     bbox.id = resp.id;
     return bbox;
   }).then(function(bbox){
-    return self.del(id).then(function(){
+    return self.delItem(id).then(function(){
       return bbox
     });
   }).then(function(item){
@@ -120,6 +120,9 @@ Tree.prototype.remove = function(id){
     return resp;
   });
 };
+Tree.prototype.putItem = function(key,value){
+  return this.put('z-'+key, value);
+}
 Tree.prototype.put = function(key, value){
   var self = this;
   return new Promise(function(yes,no){
@@ -132,6 +135,9 @@ Tree.prototype.put = function(key, value){
     });
   });
 };
+Tree.prototype.fetch = function(key){
+  return this.get('z-'+key);
+};
 Tree.prototype.get = function(id){
   var self = this;
   return new Promise(function(yes,no){
@@ -142,6 +148,9 @@ Tree.prototype.get = function(id){
       yes(resp);
     })
   });
+};
+Tree.prototype.delItem = function(key){
+  return this.del('z-'+key);
 };
 Tree.prototype.del = function(id){
   var self = this;
