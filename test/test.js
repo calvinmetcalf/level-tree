@@ -82,93 +82,93 @@ describe('tree',function(){
         return reslt[0].id;
       }).should.become(1);
     });
-    it('should be able to remove stuff',function(){
-      return tree.load([schools.features[0]]).then(function(id){
-        return tree.insert(schools.features[1]);
-      }).then(function(){
-          return tree.remove(1);
-      }).then(function(){
-        return tree.search([-100,0,0,80]);
-      }).then(function(reslt){
-        return reslt[0].id;
-      }).should.become(2);
-    });
-    it('should be able to insert stuff batch',function(){
-      return tree.load(schools.features).then(function(){
-        return tree.search([-100,0,0,80]);
-      }).then(function(reslt){
-        return reslt.length
-      }).should.become(2673);
-    });
-    it('should be able to insert stuff batch and then remove stuff',function(){
-      return tree.load(schools.features).then(function(){
-        return tree.remove(1);
-      }).then(function(){
-        return tree.search([-100,0,0,80]);
-      }).then(function(reslt){
-        return reslt.length
-      }).should.become(2672);
-    });
+    // it('should be able to remove stuff',function(){
+    //   return tree.load([schools.features[0]]).then(function(id){
+    //     return tree.insert(schools.features[1]);
+    //   }).then(function(){
+    //       return tree.remove(1);
+    //   }).then(function(){
+    //     return tree.search([-100,0,0,80]);
+    //   }).then(function(reslt){
+    //     return reslt[0].id;
+    //   }).should.become(2);
+    // });
+    // it('should be able to insert stuff batch',function(){
+    //   return tree.load(schools.features).then(function(){
+    //     return tree.search([-100,0,0,80]);
+    //   }).then(function(reslt){
+    //     return reslt.length
+    //   }).should.become(2673);
+    // });
+    // it('should be able to insert stuff batch and then remove stuff',function(){
+    //   return tree.load(schools.features).then(function(){
+    //     return tree.remove(1);
+    //   }).then(function(){
+    //     return tree.search([-100,0,0,80]);
+    //   }).then(function(reslt){
+    //     return reslt.length
+    //   }).should.become(2672);
+    // });
   });
-  describe('rBush Data', function(){
-    var tree;
-    beforeEach(function(){
-      tree = new Tree('test');
-      return tree;
-    });
-    afterEach(function(){
-      return tree.destroy();
-    });
-    it('should work',function(){
-      return tree.destroy().then(function(){
-        tree = new Tree('test',{maxEntries:4});
-        return tree;
-      }).then(function(){
-        return tree.load(data);
-      }).then(function(){
-        return tree.data.height;
-      }).should.become(3);
-    });
-    it('should work again',function(){
-      return tree.destroy().then(function(){
-        tree = new Tree('test',{maxEntries:4});
-        return tree;
-      }).then(function(){
-        return tree.load(data);
-      }).then(function(){
-        return tree.all().length;
-      }).should.become(48);
-    });
-    it('should properly merge',function(){
-      return tree.destroy().then(function(){
-        tree = new Tree('test',{maxEntries:4});
-        return tree;
-      }).then(function(){
-        return tree.load(data);
-      }).then(function(){
-        return tree.load(someData(10));
-      }).then(function(){
-        return JSON.stringify(tree.all().sort());
-      }).should.become(JSON.stringify(data.concat(someData(10)).map(function(v){
-        return v.bbox;
-      }).sort()));
-    });
-    it('should be able to search',function(){
-      return tree.destroy().then(function(){
-        tree = new Tree('test',{maxEntries:4});
-        return tree;
-      }).then(function(){
-        return tree.load(data);
-      }).then(function(){
-        return tree.search([40, 20, 80, 70]);
-      }).then(function(result){
-        return result.map(function(v){
-          return v.bbox;
-        }).sort();
-      }).should.become([
-                [70,20,70,20],[75,25,75,25],[45,45,45,45],[50,50,50,50],[60,60,60,60],[70,70,70,70],
-                [45,20,45,20],[45,70,45,70],[75,50,75,50],[50,25,50,25],[60,35,60,35],[70,45,70,45]
-            ].sort());
-    });
-  });
+  // describe('rBush Data', function(){
+  //   var tree;
+  //   beforeEach(function(){
+  //     tree = new Tree('test');
+  //     return tree;
+  //   });
+  //   afterEach(function(){
+  //     return tree.destroy();
+  //   });
+  //   it('should work',function(){
+  //     return tree.destroy().then(function(){
+  //       tree = new Tree('test',{maxEntries:4});
+  //       return tree;
+  //     }).then(function(){
+  //       return tree.load(data);
+  //     }).then(function(){
+  //       return tree.data.height;
+  //     }).should.become(3);
+  //   });
+  //   it('should work again',function(){
+  //     return tree.destroy().then(function(){
+  //       tree = new Tree('test',{maxEntries:4});
+  //       return tree;
+  //     }).then(function(){
+  //       return tree.load(data);
+  //     }).then(function(){
+  //       return tree.all().length;
+  //     }).should.become(48);
+  //   });
+  //   it('should properly merge',function(){
+  //     return tree.destroy().then(function(){
+  //       tree = new Tree('test',{maxEntries:4});
+  //       return tree;
+  //     }).then(function(){
+  //       return tree.load(data);
+  //     }).then(function(){
+  //       return tree.load(someData(10));
+  //     }).then(function(){
+  //       return JSON.stringify(tree.all().sort());
+  //     }).should.become(JSON.stringify(data.concat(someData(10)).map(function(v){
+  //       return v.bbox;
+  //     }).sort()));
+  //   });
+  //   it('should be able to search',function(){
+  //     return tree.destroy().then(function(){
+  //       tree = new Tree('test',{maxEntries:4});
+  //       return tree;
+  //     }).then(function(){
+  //       return tree.load(data);
+  //     }).then(function(){
+  //       return tree.search([40, 20, 80, 70]);
+  //     }).then(function(result){
+  //       return result.map(function(v){
+  //         return v.bbox;
+  //       }).sort();
+  //     }).should.become([
+  //               [70,20,70,20],[75,25,75,25],[45,45,45,45],[50,50,50,50],[60,60,60,60],[70,70,70,70],
+  //               [45,20,45,20],[45,70,45,70],[75,50,75,50],[50,25,50,25],[60,35,60,35],[70,45,70,45]
+  //           ].sort());
+  //   });
+  // });
 });
