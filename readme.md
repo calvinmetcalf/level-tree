@@ -8,7 +8,7 @@ Points are storied by finding the full key for the point, multipoints have a key
 References 
 ===
 
-- (Spatial indexing with Quadtrees and Hilbert Curves)[http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves]
+- [Spatial indexing with Quadtrees and Hilbert Curves](http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves)
 
 API
 ===
