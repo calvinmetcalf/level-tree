@@ -1,7 +1,7 @@
 {
   "name": "level-tree",
-  "version": "0.0.1",
-  "description": "rBush but with leveldb",
+  "version": "0.1.0",
+  "description": "nontree indexing with leveldb",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha test/test.js"
