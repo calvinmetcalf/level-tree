@@ -1,7 +1,14 @@
 level-tree
 ===
 
-An experiment in combining [rBush](https://github.com/mourner/rbush) spatial indexing with [(hyper)leveldb](https://github.com/rvagg/node-leveldown/tree/hyper-leveldb) persistence. Currently it works by having an in memory rtree and the features are all in the leveldb, the rtree is periodically serialized to the leveldb and if a db is re opened the rtree is loaded from the db. The next step is to store the rtree in the leveldb, this is why I have a slightly modified version of rbush in here, I plan on modifiying it beyond recognition. 
+An experiment in spatial indexing with [(hyper)leveldb](https://github.com/rvagg/node-leveldown/tree/hyper-leveldb) via geohashing type scheme. It implements a nontree with a ternary Hilbert curve.  In other words instead of using a 2x2 grid each level we use a 3x3 one, and the hibertish curve is created by ordering the tiles with the top row abc, the middle row fed and the bottom row ghi, positions in the middle row are flipped on the vertical axis and the middle column flipped on the horizontal axis (with the center position flipped both ways which is the equivalent of rotating it 180 degrees).
+
+Points are storied by finding the full key for the point, multipoints have a key inserted for each point, and line and polygon features are broken up into a number of bboxes which cover it.
+
+References 
+===
+
+- (Spatial indexing with Quadtrees and Hilbert Curves)[http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves]
 
 API
 ===
@@ -19,8 +26,14 @@ create
 ---
 
 ```javascript
-var db = new Tree('dbName');
+var db = new Tree('dbName'[, options]);
 ```
+
+creates (or opens) the physical database, options include 
+
+- `range` with specifies the overall extent of the data (Defaults to [-180,-90,180,90])
+- `maxDepth` which specifies how many levels to go down before calling it precise enough, default is 10
+- `maxPieces` which specifies how many pieces (at most) a bounding box should be broken up into when turning into keys for either line and polygon bboxes or for searches.
 
 insert
 ----

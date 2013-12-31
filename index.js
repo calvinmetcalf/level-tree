@@ -1,7 +1,6 @@
 var level = require('level-hyper');
 var gbv = require('geojson-bounding-volume');
 var Promise = require('lie');
-var Rbush = require('./rbush');
 var all = require('lie-all');
 var crypto = require('crypto');
 function hash(data){
@@ -26,6 +25,7 @@ function Tree(name, options){
   var self = this;
   this.range = options.range || [-180,-90,180,90];
   this.maxDepth = options.depth || 10;
+  this.maxPieces = options.maxPieces || 20
   self.fullname = '__tree__'+name;
   self.then = new Promise(function(yes,no){
     self.db = level(self.fullname, {valueEncoding:'json'},function(err){
@@ -43,26 +43,10 @@ Tree.prototype.mid = function(box){
 }
 Tree.prototype.tiles = [
   ['a','b','c'],
-  ['d','e','f'],
+  ['f','e','d'],
   ['g','h','i']
 ];
-Tree.prototype.fTiles = [
-  ['a','d','g'],
-  ['b','e','h'],
-  ['c','f','i']
-];
-Tree.prototype.rTiles = {
-  a : [0,0],
-  b : [0,1],
-  c : [0,2],
-  d : [1,0],
-  e : [1,1],
-  f : [1,2],
-  g : [2,0],
-  h : [2,1],
-  i : [2,2],
-}
-Tree.prototype.whichQuad = function(coord,mid){
+Tree.prototype.whichQuad = function(coord,mid,prev){
   var x,y;
   if(coord[0]<mid[0][0]){
     x = 0;
@@ -78,24 +62,92 @@ Tree.prototype.whichQuad = function(coord,mid){
   }else{
     y = 1;
   }
-  return this.tiles[y][x];
+  return this.normilize(prev,this.tiles[y][x]);
 }
-Tree.prototype.newBox = function(quad,oldBox,mid){
+Tree.prototype.normalization = {
+  true:{
+    true:{
+      c:'i',
+      b:'h',
+      a:'g',
+      f:'f',
+      e:'e',
+      d:'d',
+      i:'c',
+      h:'b',
+      g:'a'
+    },
+    false:{
+      c:'a',
+      b:'b',
+      a:'c',
+      f:'d',
+      e:'e',
+      d:'f',
+      i:'g',
+      h:'h',
+      g:'i'
+    }
+  },
+  false:{
+    true:{
+      a:'i',
+      b:'h',
+      c:'g',
+      d:'f',
+      e:'e',
+      f:'d',
+      g:'c',
+      h:'b',
+      i:'a'
+    },
+    false:{
+      a:'a',
+      b:'b',
+      c:'c',
+      d:'d',
+      e:'e',
+      f:'f',
+      g:'g',
+      h:'h',
+      i:'i'
+    }
+  }
+}
+Tree.prototype.normilize = function(prev,current){
+  var flip = 0;
+  var rotate = 0;
+  var i = 0;
+  var len = prev.length;
+  while(i<len){
+    if(~['b','e','h'].indexOf(prev[i])){
+      flip+=1;
+      rotate+=1;
+    }
+    if(~['f','e','d'].indexOf(prev[i])){
+      flip+=1;
+    }
+    i++;
+  }
+  return this.normalization[!!(flip%2)][!!(rotate%2)][current];
+}
+Tree.prototype.newBox = function(quad,oldBox,mid,prev){
   var out = [0,0,0,0];
-  if(~['a','b','c'].indexOf(quad)){
+  var normilizedQuad = this.normilize(prev,quad);
+  if(~['a','b','c'].indexOf(normilizedQuad)){
     out[1]=mid[1][1];
     out[3]=oldBox[3];
-  }else if(~['d','e','f'].indexOf(quad)){
+  }else if(~['f','e','d'].indexOf(normilizedQuad)){
     out[1]=mid[0][1];
     out[3]=mid[1][1];
   }else{
     out[1]=oldBox[1];
     out[3]=mid[0][1];
   }
-  if(~['a','d','g'].indexOf(quad)){
+  if(~['a','f','g'].indexOf(normilizedQuad)){
     out[0]=oldBox[0];
     out[2]=mid[0][0]
-  }else if(~['b','e','h'].indexOf(quad)){
+  }else if(~['b','e','h'].indexOf(normilizedQuad)){
     out[0] = mid[0][0];
     out[2] = mid[1][0];
   }else{
@@ -105,14 +157,15 @@ Tree.prototype.newBox = function(quad,oldBox,mid){
   return out;
 }
 Tree.prototype.toQuad = function(coords){
-  var depth = 0;
+  var depth = -1;
   var out = "";
   var box = this.range;
-  var current,mid;
-  while(++depth<this.maxDepth){
+  var current,mid,prev;
+  while(depth++<this.maxDepth){
     mid = this.mid(box);
-    current = this.whichQuad(coords,mid);
-    box = this.newBox(current,box,mid);
+    prev = current;
+    current = this.whichQuad(coords,mid,out);
+    box = this.newBox(current,box,mid,out);
     out+=current;
   }
   return out;
@@ -121,16 +174,32 @@ Tree.prototype.fromQuad = function(quad){
   var depth = quad.length;
   var out = this.range;
   var i = -1;
-  var current,letter,mid;
+  var current,letter,prev,mid;
   while(++i<depth){
+    prev = letter;
     letter = quad[i];
     mid = this.mid(out);
-    out = this.newBox(letter,out,mid);
+    out = this.newBox(letter,out,mid,quad.slice(0,i));
   }
   return out;
 }
 Tree.prototype.up = function(quad){
   return quad.slice(0,-1);
+}
+Tree.prototype.next = function(quad){
+  if(!quad.length){
+    return quad;
+  }
+  var i = quad.length-1;
+  while(i){
+    if(quad.charCodeAt(i)<105){
+      quad[i]=String.fromCharCode(quad.charCodeAt(i)+1);
+      return quad;
+    }else if(quad.charCodeAt(i)===105){
+      quad[i]='a';
+      i--;
+    }
+  }
 }
 Tree.prototype.contains = function(a, b) {
   return a[0] <= b[0] &&
@@ -162,70 +231,76 @@ Tree.prototype.whichChildren = function(quad, bbox){
       }
     }
   },this);
-  if((quad.length+1 === searchDepth && partial.length === 9)||(full.length+partial.length > 6)){
-    return [[quad],[]];
-  }
-  if(full.length+partial.length >5){
-    return [full.concat(partial),[]]
-  }
-  return [full,partial];
+  return {full:full,partial:partial,id:quad}
 }
 Tree.prototype.extent = function(bbox){
   bbox = this.fromQuad(this.toQuad([bbox[0],bbox[1]])).slice(0,2)
     .concat(this.fromQuad(this.toQuad([bbox[2],bbox[3]])).slice(-2));
     var todo = [''];
     var done = [];
-    var current, output;
+    var current, output,newTodo,tempTodo;
     while(todo.length){
-      current = todo.pop();
-      output = this.whichChildren(current,bbox);
-      if(output[0].length){
-        done = done.concat(output[0]);
-      }
-      if(output[1].length){
-        todo = todo.concat(output[1]);
+      newTodo = todo.map(function(v){
+        return this.whichChildren(v,bbox);
+      },this);
+      todo = [];
+      tempTodo = [];
+      newTodo.forEach(function(v){
+        if(v.full.length ===1 && !v.partial.length){
+          done.push(v.full[0]);
+        }else if(!v.full.length && v.partial.length ===1){
+          todo.push(v.partial[0]);
+        }else{
+          v.num = v.full.length+v.partial.length;
+          tempTodo.push(v);
+        }
+      });
+      if(tempTodo.length){
+        tempTodo.sort(function(a,b){
+          return a.num-b.num;
+        });
+        while(tempTodo.length){
+          current = tempTodo.shift();
+          if((current.num+todo.length+done.length)>this.maxPieces){
+            done.push(current.id);
+          }else{
+            done = done.concat(current.full);
+            todo = todo.concat(current.partial);
+          }
+        }
       }
     }
     return done;
 }
-Tree.prototype.neighbour = function(quad,direction){
-  var bbox = this.fromQuad(quad);
-  var dif;
-  switch(direction){
-    case 'north':
-      dif = bbox[3]-bbox[1];
-      return this.toQuad([bbox[0],bbox[1]+dif,bbox[2],bbox[3]+dif]);
-    case 'south':
-      dif = bbox[1]-bbox[3];
-      return this.toQuad([bbox[0],bbox[1]+dif,bbox[2],bbox[3]+dif]);
-    case 'east':
-      dif = bbox[2]-bbox[0];
-      return this.toQuad([bbox[0]+dif,bbox[1],bbox[2]+dif,bbox[3]]);
-    case 'west':
-      dif = bbox[0]-bbox[2];
-      return this.toQuad([bbox[0]+dif,bbox[1],bbox[2]+dif,bbox[3]]);
+Tree.prototype.makeExtent = function(item){
+  switch(item.geometry.type){
+    case 'Point':
+      return [this.toQuad(item.geometry.coordinates)];
+    case 'MultiPoint':
+      return item.geometry.coordinates.map(this.toQuad,this);
+    default:
+      return this.extent(item.bbox);
   }
 }
 Tree.prototype.insert = function(item){
   var self = this;
   if(!item.bbox){
     item.bbox = makeBbox(item);
+    item.bboxen = this.makeExtent(item);
   }
   if(!item.id){
     item.id = makeID(item);
   }
-  var bbox = item.bbox.slice();
   var id = item.id;
-  bbox.id = id;
-  return this.insertBbox(id,bbox).then(function(extent){
-    item.bboxen = extent;
+  return this.insertBbox(item).then(function(extent){
     return self.putItem(id,item).then(function(resp){
       return id;
     });
   });
 };
-Tree.prototype.insertBbox =function(id,bbox){
-  var extent = this.extent(bbox);
+Tree.prototype.insertBbox =function(item){
+  var extent = item.bboxen;
+  var id = item.id;
   var self = this;
   if(!Array.isArray(id)){
     id = [id];
@@ -266,8 +341,8 @@ Tree.prototype.load = function(array){
     }
     array[i].bbox.id = array[i].id;
     batch[i] = {key:'z-'+array[i].id,value:array[i],type:'put'};
-    extent = this.extent(array[i].bbox);
-    batch[i].bboxen = extent;
+    extent = this.makeExtent(array[i]);
+    batch[i].value.bboxen = extent;
     extent.forEach(function(value){
       if(!bboxen[value]){
         bboxen[value]=[];
@@ -278,21 +353,20 @@ Tree.prototype.load = function(array){
   var things = [];
   Object.keys(bboxen).forEach(function(quad){
     var ids = bboxen[quad];
-    things.push(this.has(v).then(function(answer){
+    things.push(this.has(quad).then(function(answer){
       if(answer){
-        return self.get(v);
+        return self.get(quad);
       }else{
         return {features:[],id:quad}
       }
     }).then(function(v){
-      v.features = v.features.concat(id);
+      v.features = v.features.concat(ids);
       return {type:'put',key:v.id,value:v}
     }))
   },this);
   return all(things).then(function(moreKeys){
     batch = batch.concat(moreKeys);
     return self.batch(batch);
-  });
   });
 }
 Tree.prototype.batch = function(batch){
@@ -320,10 +394,22 @@ Tree.prototype.search = function(bbox){
   });
 }
 Tree.prototype.searchTree = function(bbox){
-  var extents = this.extent(bbox);
+  var extents = this.extent(bbox).sort().map(function(v){
+    return [v,this.next(v)];
+  },this).reduce(function(a,b){
+    if(!a.length){
+      return [b];
+    }
+    if(a[a.length-1][1]===b[0]){
+      a[a.length-1][1] = b[1];
+    }else{
+      a.push(b);
+    }
+    return a;
+  },[]);
   var self = this;
   return all(extents.map(function(v){
-    return self.findChildren(v);
+    return self.findChildren(v[0],v[1]);
   })).then(function(children){
     var map = {};
     children.forEach(function(child){
@@ -334,16 +420,15 @@ Tree.prototype.searchTree = function(bbox){
     return Object.keys(map);
   });
 }
-Tree.prototype.findChildren = function(key){
+Tree.prototype.findChildren = function(start,end){
   var self = this;
   return new Promise(function(yes,no){
-    var stream = self.db.createReadStream({'start':key}).on('error',no);
+    var stream = self.db.createReadStream({'start':start,'end':end}).on('error',no);
     var out = [];
-    stream.on('data',function(data){
-      if(data.key.length<=key.length||data.key.slice(0,key.length)!== key){
-        stream.destroy();
-        yes(out);
-      }else if(data.value&&data.value.features){
+    stream.on('end',function(){
+      yes(out);
+    }).on('data',function(data){
+      if(data.value&&data.value.features&&data.key!==end){
         data.value.features.forEach(function(v){
           out.push(v);
         });
@@ -354,17 +439,26 @@ Tree.prototype.findChildren = function(key){
 Tree.prototype.remove = function(id){
   var self = this;
   return self.fetch(id).then(function(resp){
-    var bbox = resp.bbox;
-    bbox.id = resp.id;
-    return bbox;
-  }).then(function(bbox){
+    return resp.bboxen;
+  }).then(function(bboxen){
     return self.delItem(id).then(function(){
-      return bbox
+      return bboxen
     });
-  }).then(function(item){
-    var resp =  Rbush.prototype.remove.call(self,item);
-    self.sync();
-    return resp;
+  }).then(function(bboxen){
+    return all(bboxen.map(function(bbox){
+      return self.get(bbox).then(function(resp){
+        if(resp.features.length===1){
+          return {type:'del',key:resp.id}
+        }else{
+          resp.features = resp.features.filter(function(v){
+            return v!==id;
+          })
+          return {type:'put',key:resp.id,value:resp};
+        }
+      });
+    })).then(function(batch){
+      return self.batch(batch);
+    })
   });
 };
 Tree.prototype.putItem = function(key,value){
