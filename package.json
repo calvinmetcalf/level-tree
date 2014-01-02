@@ -1,6 +1,6 @@
 {
   "name": "level-tree",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "nontree (9-tree) indexing with leveldb",
   "main": "index.js",
   "scripts": {
