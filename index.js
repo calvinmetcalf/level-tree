@@ -27,8 +27,18 @@ function Tree(name, options){
   this.maxDepth = options.depth || 10;
   this.maxPieces = options.maxPieces || 20
   self.fullname = '__tree__'+name;
+  var leveldbOpts = {valueEncoding:'json'};
+  if(options.createIfMissing===false){
+    leveldbOpts.createIfMissing = options.createIfMissing;
+  }
+  if(options.errorIfExists===true){
+    leveldbOpts.errorIfExists = options.errorIfExists;
+  }
   self.then = new Promise(function(yes,no){
-    self.db = level(self.fullname, {valueEncoding:'json'},function(err){
+    if(!name){
+      throw Error('invald name');
+    }
+    self.db = level(self.fullname, leveldbOpts ,function(err){
       if(err){
         no(err);
       }else{
@@ -182,21 +192,19 @@ Tree.prototype.fromQuad = function(quad){
   }
   return out;
 }
-Tree.prototype.up = function(quad){
-  return quad.slice(0,-1);
-}
 Tree.prototype.next = function(quad){
   if(!quad.length){
     return quad;
   }
-  var i = quad.length-1;
+  var i = quad.length;
   while(i){
+    i--;
     if(quad.charCodeAt(i)<105){
-      quad[i]=String.fromCharCode(quad.charCodeAt(i)+1);
-      return quad;
+      return quad.slice(0,i)+String.fromCharCode(quad.charCodeAt(i)+1)+quad.slice(i+1);
     }else if(quad.charCodeAt(i)===105){
-      quad[i]='a';
-      i--;
+      quad=quad.slice(0,i)+'a'+quad.slice(i+1);
+    }else{
+      throw new Error('invalid tile name');
     }
   }
 }
@@ -233,8 +241,6 @@ Tree.prototype.whichChildren = function(quad, bbox){
   return {full:full,partial:partial,id:quad}
 }
 Tree.prototype.extent = function(bbox){
-  bbox = this.fromQuad(this.toQuad([bbox[0],bbox[1]])).slice(0,2)
-    .concat(this.fromQuad(this.toQuad([bbox[2],bbox[3]])).slice(-2));
     var todo = [''];
     var done = [];
     var current, output,newTodo,tempTodo;
@@ -346,7 +352,9 @@ Tree.prototype.load = function(array){
       if(!bboxen[value]){
         bboxen[value]=[];
       }
-      bboxen[value].push(array[i].id);
+      if(~~bboxen[value].indexOf(array[i].id)){
+        bboxen[value].push(array[i].id);
+      }
     })
   };
   var things = [];

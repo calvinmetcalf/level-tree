@@ -2,6 +2,13 @@
 var Tree = require('../');
 var schools = require('./schools.json');
 var Promise = require('lie');
+var fs = require('fs');
+function removeAll(path){
+  fs.readdirSync(path).forEach(function(v){
+    fs.unlinkSync(path+'/'+v);
+  });
+  fs.rmdirSync(path);
+}
 function someData(n) {
   var data = [];
 
@@ -21,7 +28,7 @@ var data = [[0,0,0,0],[10,10,10,10],[20,20,20,20],[25,0,25,0],[35,10,35,10],[45,
   });
 require("mocha-as-promised")();
 var chai = require("chai");
-chai.should();
+var should = chai.should();
 var chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 describe('tree',function(){
@@ -40,6 +47,22 @@ describe('tree',function(){
       });
     });
   });
+  describe('next',function(){
+    it('should work',function(){
+      Tree.prototype.next('aaa').should.equal('aab');
+    });
+    it('should wrap around',function(){
+      Tree.prototype.next('aai').should.equal('aba');
+    });
+    it('should wrap give a string for a string',function(){
+      Tree.prototype.next('').should.equal('');
+    });
+    it('should thorw an error for an invalid string',function(){
+      return new Promise(function(yes,no){
+        Tree.prototype.next('ak');
+      }).should.be.rejected;
+    });
+  });
   describe('intermediate',function(){
     this.timeout(50000);
     var tree;
@@ -49,6 +72,13 @@ describe('tree',function(){
     });
     afterEach(function(){
       return tree.destroy();
+    });
+    after(function(){
+      removeAll('__tree__blah');
+      removeAll('__tree__tree2');
+    })
+    it('should be able to be closed twice',function(){
+      return tree.close().should.become(true);
     });
     it('should be able to add stuff',function(){
       return tree.insert({
@@ -79,14 +109,14 @@ describe('tree',function(){
     });
     it('should be able to search stuff',function(){
       return tree.insert(schools.features[0]).then(function(a){
-        return tree.search([-100,0,0,80]);
+        return tree.search([-75,35,-65,45]);
       }).then(function(reslt){
         return reslt[0].id;
       }).should.become(1);
     });
     it('should be able to remove stuff',function(){
       return tree.load([schools.features[0]]).then(function(id){
-        return tree.insert(schools.features[1]);
+        return tree.load([schools.features[1]]);
       }).then(function(){
           return tree.remove(1);
       }).then(function(){
@@ -103,13 +133,48 @@ describe('tree',function(){
       }).should.become(330);
     });
     it('should be able to insert stuff batch and then remove stuff',function(){
-      return tree.load(schools.features).then(function(){
-        return tree.remove(1);
+      return tree.load(schools).then(function(){
+        return tree.hasItem(1).then(function(answer){
+          if(answer){
+            return tree.remove(1);
+          }
+        });
       }).then(function(){
         return tree.search([-100,0,0,80]);
       }).then(function(reslt){
         return reslt.length
       }).should.become(329);
+    });
+    it('should throw an error if we look for stuff in a closed db',function(){
+      return tree.close().then(function(){
+        return tree.has('not real');
+      }).should.be.rejected;
+    });
+    it('should throw an error if we delete stuff in a closed db',function(){
+      return tree.close().then(function(){
+        return tree.del('not real');
+      }).should.be.rejected;
+    });
+    it('should throw an error if we put stuff in a closed db',function(){
+      return tree.close().then(function(){
+        return tree.put('not real');
+      }).should.be.rejected;
+    });
+    it('should throw an error if we destory a db twice',function(){
+      return new Tree('blah').then(function(tree){
+        return tree.destroy().then(function(){
+          return tree.destroy();
+        });
+      }).should.be.rejected;
+    });
+    it("should throw an error if we don't give a name",function(){
+      return new Tree().should.be.rejected;
+    });
+    it("should throw an error if we specify it can't be created we do",function(){
+      return new Tree('tree2',{createIfMissing:false}).should.be.rejected;
+    });
+    it("should throw an error if we try to create it twice",function(){
+      return new Tree('test',{errorIfExists:true}).should.be.rejected;
     });
   });
 });
