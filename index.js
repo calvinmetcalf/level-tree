@@ -67,15 +67,15 @@ Tree.prototype.whichQuad = function(coord,mid,prev){
 Tree.prototype.normalization = {
   true:{
     true:{
-      c:'i',
+      c:'g',
       b:'h',
-      a:'g',
-      f:'f',
+      a:'i',
+      f:'d',
       e:'e',
-      d:'d',
-      i:'c',
+      d:'f',
+      i:'a',
       h:'b',
-      g:'a'
+      g:'c'
     },
     false:{
       c:'a',
@@ -91,15 +91,15 @@ Tree.prototype.normalization = {
   },
   false:{
     true:{
-      a:'i',
+      a:'g',
       b:'h',
-      c:'g',
-      d:'f',
+      c:'i',
+      d:'d',
       e:'e',
-      f:'d',
-      g:'c',
+      f:'f',
+      g:'a',
       h:'b',
-      i:'a'
+      i:'c'
     },
     false:{
       a:'a',
@@ -115,21 +115,20 @@ Tree.prototype.normalization = {
   }
 }
 Tree.prototype.normilize = function(prev,current){
-  var flip = 0;
-  var rotate = 0;
+  var flipx = 0;
+  var flipy = 0;
   var i = 0;
   var len = prev.length;
   while(i<len){
     if(~['b','e','h'].indexOf(prev[i])){
-      flip+=1;
-      rotate+=1;
+      flipy+=1;
     }
     if(~['f','e','d'].indexOf(prev[i])){
-      flip+=1;
+      flipx+=1;
     }
     i++;
   }
-  return this.normalization[!!(flip%2)][!!(rotate%2)][current];
+  return this.normalization[!!(flipx%2)][!!(flipy%2)][current];
 }
 Tree.prototype.newBox = function(quad,oldBox,mid,prev){
   var out = [0,0,0,0];
