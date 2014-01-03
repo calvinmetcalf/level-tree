@@ -2,7 +2,7 @@
   "name": "level-tree",
   "version": "0.1.2",
   "description": "nontree (9-tree) indexing with leveldb",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha test/test.js"
   },
