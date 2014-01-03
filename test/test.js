@@ -1,6 +1,7 @@
 'use strict';
 var Tree = require('../lib');
 var schools = require('./schools.json');
+var trails = require('./trails.json');
 var Promise = require('lie');
 var fs = require('fs');
 function removeAll(path){
