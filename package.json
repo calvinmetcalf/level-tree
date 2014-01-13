@@ -11,8 +11,8 @@
   "dependencies": {
     "level-hyper": "~0.18.0",
     "geojson-bounding-volume": "~0.1.1",
-    "lie": "~2.4.0",
-    "lie-all": "~0.1.3"
+    "lie": "~2.5.2",
+    "lie-all": "~0.1.5"
   },
   "repository": {
     "type": "git",
