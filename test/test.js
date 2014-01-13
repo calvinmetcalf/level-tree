@@ -64,70 +64,139 @@ describe('tree',function(){
     it('should be able to be closed twice',function(){
       return tree.close().should.become(true);
     });
-    it('should be able to add stuff',function(){
-      return tree.insert({
-        type:schools.features[0].type,
-        geometry:schools.features[0].geometry,
-        properties:schools.features[0].properties
-      }).then(function(a){
-        return true;
-      }).should.become(true);
-    });
-    it('should be able to add stuff and then get it',function(){
-      return tree.insert(schools.features[0]).then(function(id){
-        return tree.fetch(id);
-      }).then(function(item){
-        return item.geometry;
-      }).should.become(schools.features[0].geometry);
-    });
-    it('should be able to add stuff, close it, open it and then get it',function(){
-      return tree.insert(schools.features[0]).then(function(id){
-        return tree.close().then(function(){
-          tree = new Tree('test');
-        }).then(function(){
+    describe('points', function(){
+      it('should be able to add stuff',function(){
+        return tree.insert({
+          type:schools.features[0].type,
+          geometry:schools.features[0].geometry,
+          properties:schools.features[0].properties
+        }).then(function(a){
+          return true;
+        }).should.become(true);
+      });
+      it('should be able to add stuff and then get it',function(){
+        return tree.insert(schools.features[0]).then(function(id){
           return tree.fetch(id);
-        });
-      }).then(function(item){
-        return item.geometry;
-      }).should.become(schools.features[0].geometry);
-    });
-    it('should be able to search stuff',function(){
-      return tree.insert(schools.features[0]).then(function(a){
-        return tree.search([-75,35,-65,45]);
-      }).then(function(reslt){
-        return reslt[0].id;
-      }).should.become(1);
-    });
-    it('should be able to remove stuff',function(){
-      return tree.load([schools.features[0]]).then(function(id){
-        return tree.load([schools.features[1]]);
-      }).then(function(){
-          return tree.remove(1);
-      }).then(function(){
-        return tree.search([-100,0,0,80]);
-      }).then(function(reslt){
-        return reslt[0].id;
-      }).should.become(2);
-    });
-    it('should be able to insert stuff batch',function(){
-      return tree.load(schools.features).then(function(){
-        return tree.search([-100,0,0,80]);
-      }).then(function(reslt){
-        return reslt.length
-      }).should.become(330);
-    });
-    it('should be able to insert stuff batch and then remove stuff',function(){
-      return tree.load(schools).then(function(){
-        return tree.hasItem(1).then(function(answer){
-          if(answer){
+        }).then(function(item){
+          return item.geometry;
+        }).should.become(schools.features[0].geometry);
+      });
+      it('should be able to add stuff, close it, open it and then get it',function(){
+        return tree.insert(schools.features[0]).then(function(id){
+          return tree.close().then(function(){
+            tree = new Tree('test');
+          }).then(function(){
+            return tree.fetch(id);
+          });
+        }).then(function(item){
+          return item.geometry;
+        }).should.become(schools.features[0].geometry);
+      });
+      it('should be able to search stuff',function(){
+        return tree.insert(schools.features[0]).then(function(a){
+          return tree.search([-75,35,-65,45]);
+        }).then(function(reslt){
+          return reslt[0].id;
+        }).should.become(1);
+      });
+      it('should be able to remove stuff',function(){
+        return tree.load([schools.features[0]]).then(function(id){
+          return tree.load([schools.features[1]]);
+        }).then(function(){
             return tree.remove(1);
-          }
-        });
-      }).then(function(){
-        return tree.search([-100,0,0,80]);
-      }).then(function(reslt){
-        return reslt.length
-      }).should.become(329);
+        }).then(function(){
+          return tree.search([-100,0,0,80]);
+        }).then(function(reslt){
+          return reslt[0].id;
+        }).should.become(2);
+      });
+      it('should be able to insert stuff batch',function(){
+        return tree.load(schools.features).then(function(){
+          return tree.search([-100,0,0,80]);
+        }).then(function(reslt){
+          return reslt.length
+        }).should.become(330);
+      });
+      it('should be able to insert stuff batch and then remove stuff',function(){
+        return tree.load(schools).then(function(){
+          return tree.hasItem(1).then(function(answer){
+            if(answer){
+              return tree.remove(1);
+            }
+          });
+        }).then(function(){
+          return tree.search([-100,0,0,80]);
+        }).then(function(reslt){
+          return reslt.length
+        }).should.become(329);
+      });
+    });
+    describe('lines', function(){
+      it('should be able to add stuff',function(){
+        return tree.insert({
+          type:trails.features[0].type,
+          geometry:trails.features[0].geometry,
+          properties:trails.features[0].properties
+        }).then(function(a){
+          return true;
+        }).should.become(true);
+      });
+      it('should be able to add stuff and then get it',function(){
+        return tree.insert(trails.features[0]).then(function(id){
+          return tree.fetch(id);
+        }).then(function(item){
+          return item.geometry;
+        }).should.become(trails.features[0].geometry);
+      });
+      it('should be able to add stuff, close it, open it and then get it',function(){
+        return tree.insert(trails.features[0]).then(function(id){
+          return tree.close().then(function(){
+            tree = new Tree('test');
+          }).then(function(){
+            return tree.fetch(id);
+          });
+        }).then(function(item){
+          return item.geometry;
+        }).should.become(trails.features[0].geometry);
+      });
+      it('should be able to search stuff',function(){
+        return tree.insert(trails.features[0]).then(function(a){
+          return tree.search([-75,35,-65,45]);
+        }).then(function(reslt){
+          return reslt[0].id;
+        }).should.become(1);
+      });
+      it('should be able to remove stuff',function(){
+        return tree.load([trails.features[0]]).then(function(id){
+          return tree.load([trails.features[1]]);
+        }).then(function(){
+            return tree.remove(1);
+        }).then(function(){
+          return tree.search([-75,35,-65,45]);
+        }).then(function(reslt){
+          return reslt[0].id;
+        }).should.become(2);
+      });
+      it('should be able to insert stuff batch',function(){
+        return tree.load(trails.features).then(function(){
+          return tree.search([-75,35,-65,45]);
+        }).then(function(reslt){
+          return reslt.length
+        }).should.become(386);
+      });
+      it('should be able to insert stuff batch and then remove stuff',function(){
+        return tree.load(trails).then(function(){
+          return tree.hasItem(1).then(function(answer){
+            if(answer){
+              return tree.remove(1);
+            }
+          });
+        }).then(function(){
+          return tree.search([-75,35,-65,45]);
+        }).then(function(reslt){
+          return reslt.length
+        }).should.become(385);
+      });
     });
     it('should throw an error if we look for stuff in a closed db',function(){
       return tree.close().then(function(){
