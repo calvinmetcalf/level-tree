@@ -1,6 +1,6 @@
 {
   "name": "level-tree",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "geohash based nontree (9-tree) indexing with leveldb",
   "main": "lib/index.js",
   "scripts": {
