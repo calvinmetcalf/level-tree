@@ -33,7 +33,7 @@ creates (or opens) the physical database, options include
 
 - `range` with specifies the overall extent of the data (Defaults to [-180,-90,180,90])
 - `maxDepth` which specifies how many levels to go down before calling it precise enough, default is 10
-- `maxPieces` which specifies how many pieces (at most) a bounding box should be broken up into when turning into keys for either line and polygon bboxes or for searches.
+- `maxPieces` which specifies how many pieces (at most) a bounding box should be broken up into when turning into keys for either line and polygon bboxes or for searches, default is 20.
 
 insert
 ----
