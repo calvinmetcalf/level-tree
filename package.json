@@ -11,8 +11,8 @@
   "dependencies": {
     "level-hyper": "~0.18.0",
     "geojson-bounding-volume": "~0.1.1",
-    "lie": "~2.5.2",
-    "lie-all": "~0.1.5"
+    "level-sublevel": "~5.2.0",
+    "bluebird": "~1.0.0"
   },
   "repository": {
     "type": "git",

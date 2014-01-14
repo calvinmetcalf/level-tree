@@ -2,7 +2,7 @@
 var Tree = require('../lib');
 var schools = require('./schools.json');
 var trails = require('./trails.json');
-var Promise = require('lie');
+var Promise = require('bluebird');
 var fs = require('fs');
 function removeAll(path){
   fs.readdirSync(path).forEach(function(v){
@@ -119,10 +119,8 @@ describe('tree',function(){
       });
       it('should be able to insert stuff batch and then remove stuff',function(){
         return tree.load(schools).then(function(){
-          return tree.hasItem(1).then(function(answer){
-            if(answer){
-              return tree.remove(1);
-            }
+          return tree.fetch(1).then(function(answer){
+            return tree.remove(1);
           });
         }).then(function(){
           return tree.search([-100,0,0,80]);
@@ -186,10 +184,8 @@ describe('tree',function(){
       });
       it('should be able to insert stuff batch and then remove stuff',function(){
         return tree.load(trails).then(function(){
-          return tree.hasItem(1).then(function(answer){
-            if(answer){
-              return tree.remove(1);
-            }
+          return tree.fetch(1).then(function(answer){
+            return tree.remove(1);
           });
         }).then(function(){
           return tree.search([-75,35,-65,45]);
@@ -200,7 +196,7 @@ describe('tree',function(){
     });
     it('should throw an error if we look for stuff in a closed db',function(){
       return tree.close().then(function(){
-        return tree.has('not real');
+        return tree.get('not real');
       }).should.be.rejected;
     });
     it('should throw an error if we delete stuff in a closed db',function(){
