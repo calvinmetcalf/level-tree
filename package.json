@@ -1,7 +1,7 @@
 {
   "name": "level-tree",
   "version": "0.2.0",
-  "description": "geohash based nontree (9-tree) indexing with leveldb",
+  "description": "geohash (ish) nontree (9-tree) spatial indexing for GeoJSON in LevelDB",
   "main": "lib/index.js",
   "scripts": {
     "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha test/test.js"
@@ -24,5 +24,12 @@
     "chai": "~1.8.1",
     "mocha": "~1.17.0",
     "istanbul": "~0.2.1"
-  }
+  },
+   "keywords": [
+    "levelup",
+    "hyper-level",
+    "geospatial",
+    "geohash",
+    "geojson"
+  ]
 }
