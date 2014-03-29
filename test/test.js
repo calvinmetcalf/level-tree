@@ -15,27 +15,62 @@ function after(t) {
     });
   });
 }
-test('basic', function (t) {
-  t.test('do stuff', function (t) {
+test('all', function (t) {
+  t.test('query all docs', function (t) {
     db = tree(levelup(dbName));
+    var done = 0;
+    t.plan(1);
+    db.on('tree', function (v) {
+      db.queryTree([
+        -180,
+        0,
+        0,
+        80
+      ]).pipe(through(function (chunk, _, next) {
+        done++;
+        next();
+      }, function (next) {
+        t.equals(done, 386);
+        next();
+      }));
+    });
     var batch = db.batch();
     data.features.forEach(function (v, i) {
-      batch.put(String(i), JSON.stringify(v));
+      batch.put('s' + i, JSON.stringify(v));
     });
     var i = 0;
+
     batch.write(function () {
+    });
+  });
+  t.test('clean up', after);
+});
+test('some', function (t) {
+  t.test('query some docs', function (t) {
+    var done = 0;
+    db = tree(levelup(dbName));
+    t.plan(1);
+    db.on('tree', function (v) {
       db.queryTree([
         -71.6802978515625,
         42.18579390537848,
         -71.16943359375,
         42.45588764197166
       ]).pipe(through(function (chunk, _, next) {
-        t.ok(chunk, i++);
+        done++;
         next();
       }, function (next) {
-        t.end();
+        t.equals(done, 38, 'correct ammount');
       }));
     });
+    var batch = db.batch();
+    data.features.forEach(function (v, i) {
+      batch.put('s' + i, JSON.stringify(v));
+    });
+    var i = 0;
+
+    batch.write(function () {
+    });
   });
-  //t.test('clean up', after);
+  t.test('clean up', after);
 });

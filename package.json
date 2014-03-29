@@ -13,7 +13,8 @@
     "level-sublevel": "^5.2.0",
     "es6-set": "0.0.0",
     "through2": "^0.4.1",
-    "map-reduce": "^5.1.0"
+    "level-trigger": "^1.3.1",
+    "combined-stream": "0.0.4"
   },
   "repository": {
     "type": "git",
