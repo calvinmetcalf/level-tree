@@ -1,18 +1,16 @@
 {
   "name": "level-tree",
-  "version": "0.3.0",
-  "description": "geohash (ish) nontree (9-tree) spatial indexing for GeoJSON in LevelDB",
+  "version": "1.0.0",
+  "description": "RTrees in leveldb",
   "main": "lib/index.js",
   "scripts": {
-    "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha test/test.js"
+    "test": "istanbul test _mocha test/test.js"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "level-hyper": "~0.18.0",
-    "geojson-bounding-volume": "~0.1.1",
-    "level-sublevel": "~5.2.0",
-    "bluebird": "~1.0.0"
+    "async-rtree": "^0.3.0",
+    "geojson-bounding-volume": "^0.2.1"
   },
   "repository": {
     "type": "git",
@@ -23,7 +21,10 @@
     "chai-as-promised": "~4.1.0",
     "chai": "~1.8.1",
     "mocha": "~1.17.0",
-    "istanbul": "~0.2.1"
+    "istanbul": "~0.2.1",
+    "level-sublevel": "^6.3.1",
+    "tape": "^2.14.0",
+    "level": "^0.18.0"
   },
   "keywords": [
     "levelup",
