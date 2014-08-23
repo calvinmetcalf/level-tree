@@ -17,6 +17,10 @@ test('load', function (t) {
       },{
         key: '2',
         value: schools.features[1]
+      },
+      {
+        key: 'not geojson',
+        value: {sandwich: 'ham'}
       }], function (err) {
         t.error(err);
         db.once('uptodate', function () {
