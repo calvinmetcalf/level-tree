@@ -1,7 +1,4 @@
-level-tree
-===
-
-Level Tree
+Level Tree [![Build Status](https://travis-ci.org/calvinmetcalf/level-tree.svg)](https://travis-ci.org/calvinmetcalf/level-tree)
 ====
 
 An RTree index for levelup, usage
