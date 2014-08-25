@@ -4,4 +4,6 @@ node_js:
 git:
   depth: 10
 before_script:
+  - "ls $PWD/node_modules/level-sublevel/node_modules/"
   - "ln -s $PWD/node_modules/levelup $PWD/node_modules/level-sublevel/node_modules/levelup"
+  - "ls $PWD/node_modules/level-sublevel/node_modules/"
