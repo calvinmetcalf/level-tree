@@ -3,3 +3,5 @@ node_js:
   - "0.10"
 git:
   depth: 10
+before_script:
+  = "ln -s ./node_modules/levelup ./node_modules/level-sublevel/node_modules/levelup"
