@@ -19,7 +19,7 @@
     "url": "git://github.com/calvinmetcalf/level-tree.git"
   },
   "devDependencies": {
-    "level-sublevel": "^6.3.1",
+    "level-sublevel": "dominictarr/level-sublevel#0e99234e99ebd7648b33de361d44cf6d350ddf34",
     "tape": "^2.14.0",
     "memdown": "^0.10.2"
   },
