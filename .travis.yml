@@ -4,4 +4,4 @@ node_js:
 git:
   depth: 10
 before_script:
-  - "ls $PWD/node_modules/levelup/lib
+  - "ls $PWD/node_modules/levelup/lib"
