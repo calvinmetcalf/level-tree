@@ -11,7 +11,7 @@
   "dependencies": {
     "async-rtree": "^0.4.0",
     "geojson-bounding-volume": "^0.2.1",
-    "levelup": "^0.18.6",
+    "levelup": "https://codeload.github.com/dominictarr/node-levelup/tar.gz/inject",
     "through2": "^0.6.1"
   },
   "repository": {
@@ -19,7 +19,7 @@
     "url": "git://github.com/calvinmetcalf/level-tree.git"
   },
   "devDependencies": {
-    "level-sublevel": "dominictarr/level-sublevel#0e99234e99ebd7648b33de361d44cf6d350ddf34",
+    "level-sublevel": "^6.3.2",
     "tape": "^2.14.0",
     "memdown": "^0.10.2"
   },
