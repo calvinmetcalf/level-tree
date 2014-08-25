@@ -1,11 +1,3 @@
 language: node_js
 node_js:
   - "0.10"
-git:
-  depth: 10
-before_script:
-  - "ls $PWD/node_modules/level-sublevel/node_modules/"
-  - "ln -s $PWD/node_modules/levelup $PWD/node_modules/level-sublevel/node_modules/levelup"
-  - "ls $PWD/node_modules/level-sublevel/node_modules/"
-  - "ls $PWD/node_modules/level-sublevel/node_modules/levelup"
-  - "ls $PWD/node_modules/level-sublevel/node_modules/levelup/lib"
