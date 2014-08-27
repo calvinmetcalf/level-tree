@@ -83,7 +83,32 @@ test('point query', function (t) {
     db.once('uptodate', function () {
       db.treeQuery([ -70.98495,42.24867,-70.98495,42.24867], function (err, resp) {
         t.error(err);
-        t.equals(resp.length, 2, 'we get 2')
+        t.equals(resp.length, 1, 'we get 1');
+        var nr = resp.map(function (i) {
+          return i.properties.TOWN;
+        });
+        nr.sort();
+        t.deepEqual(nr, ['QUINCY'], 'just quincy');
+      });
+    });
+   });
+});
+
+test('non-strict point query', function (t) {
+  t.plan(4);
+  var db = tree(sublevel(level('./test_db',  {valueEncoding:'json', db: require('memdown') })));
+   db.batch(towns.features.map(function (item) {
+    return {
+      key: item.properties.TOWN,
+      value: item,
+      valueEncoding: 'json'
+    };
+   }), function (err) {
+    t.error(err);
+    db.once('uptodate', function () {
+      db.treeQuery([ -70.98495,42.24867,-70.98495,42.24867], false, function (err, resp) {
+        t.error(err);
+        t.equals(resp.length, 2, 'we get 2');
         var nr = resp.map(function (i) {
           return i.properties.TOWN;
         });

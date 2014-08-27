@@ -15,10 +15,11 @@ var db = levelTree(sublevel(level('./name')));
 // load in some geojson
 db.treeQuery([xmin, ymin, xmax, ymax]).pipe();
 db.treeQuery([xmin, ymin, xmax, ymax], callback);
+// nonstrict query
+db.treeQuery([xmin, ymin, xmax, ymax], false).pipe();
+db.treeQuery([xmin, ymin, xmax, ymax], false, callback);
 ```
 
-adds a treeQuery method, which either takes a bbox and returns a stream, or a bbox and a callback.
+adds a treeQuery method, which either takes a bbox and returns a stream, or a bbox and a callback. 
 
-Caveats:
-====
-- it's all by bbox so sometimes a polygon will not intersect but it's bbox will.
+you can also pass false as the second argument to treeQuery, this turns off checks to make sure that the bbox you query actually intersects the feature that is returned and not just it's bbox. These checks can be very expensive especially for polygons so turning them off when you have mostly rectangular features or when you just don't care will speed things up.
