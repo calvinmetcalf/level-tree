@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "async-rtree": "^0.4.0",
+    "async-rtree": "^0.5.0",
     "geojson-bounding-volume": "^0.2.1",
     "levelup": "https://codeload.github.com/dominictarr/node-levelup/tar.gz/inject",
     "through2": "^0.6.1",

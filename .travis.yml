@@ -3,5 +3,3 @@ node_js:
   - "0.10"
 git:
   depth: 10
-before_script:
-  - "ls $PWD/node_modules/levelup/lib"
