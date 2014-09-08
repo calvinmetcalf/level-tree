@@ -1,7 +1,7 @@
 {
   "name": "level-tree",
   "version": "1.0.0",
-  "description": "RTrees in leveldb",
+  "description": "RTree for leveldb",
   "main": "lib/index.js",
   "scripts": {
     "test": "node test/test.js"
